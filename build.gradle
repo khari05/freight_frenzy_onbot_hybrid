@@ -3,18 +3,24 @@
  *
  * It is extraordinarily rare that you will ever need to edit this file.
  */
+
+configurations {
+    doc { transitive false }
+}
+
 buildscript {
     repositories {
+        mavenCentral()
         google()
         jcenter()
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url 'https://plugins.gradle.org/m2/'
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
-        classpath 'de.undercouch:gradle-download-task:3.4.3'
-        classpath "gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1"
+        classpath 'com.android.tools.build:gradle:7.0.0'
+        classpath 'de.undercouch:gradle-download-task:4.1.2'
+        classpath 'gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1'
     }
 }
 
@@ -22,13 +28,31 @@ buildscript {
 // google() repository beginning with version 3.2 of the Android Gradle Plugin
 allprojects {
     repositories {
+        mavenCentral()
         google()
         jcenter()
     }
 }
 
+repositories {
+    mavenCentral()
+
+    flatDir {
+        dirs '../libs'
+    }
+}
+
+dependencies {
+    doc 'org.firstinspires.ftc:Hardware:6.2.0'
+    doc 'org.firstinspires.ftc:RobotCore:6.2.0'
+    doc 'org.firstinspires.ftc:FtcCommon:6.2.0'
+    doc 'org.firstinspires.ftc:OnBotJava:6.2.0'
+    doc 'org.firstinspires.ftc:Inspection:6.2.0'
+}
+
+
 apply plugin: 'de.undercouch.download'
-apply plugin: "io.github.http-builder-ng.http-plugin"
+apply plugin: 'io.github.http-builder-ng.http-plugin'
 import io.github.httpbuilderng.http.HttpTask
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileFilter
@@ -47,8 +71,30 @@ http {
     }
 }
 
+task extractJavadoc {
+    doLast {
+        def componentIds = configurations.doc.incoming.resolutionResult.allDependencies.collect { it.selected.id }
+
+        def result = dependencies.createArtifactResolutionQuery()
+                .forComponents(componentIds)
+                .withArtifacts(JvmLibrary, SourcesArtifact, JavadocArtifact)
+                .execute()
+
+        for (component in result.resolvedComponents) {
+            component.getArtifacts(JavadocArtifact).each { artifact ->
+                def version = artifact.identifier.componentIdentifier.version
+                def libName = artifact.identifier.componentIdentifier.moduleIdentifier.name
+                copy {
+                    from zipTree(artifact.file)
+                    into 'docs/$version/$libName/'
+                }
+            }
+        }
+    }
+}
+
 task downloadZipFile(type: Download) {
-    src APP_URI+"/java/file/download?f=/src/org/"
+    src APP_URI+'/java/file/download?f=/src/org/'
     dest new File(buildDir, 'code.zip')
 }
 
@@ -74,7 +120,7 @@ task wipe(type: HttpTask) {
     post {
         request.uri.path = '/java/file/delete'
         request.contentType = 'application/x-www-form-urlencoded'
-        request.body = [delete: '["/src/"]']
+        request.body = [delete: '['/src/']']
         response.success { data, body ->
             println(body)
         }
@@ -137,7 +183,7 @@ task push(type: HttpTask) {
         }
     }
     println(paths)
-    fileTree('TeamCode/src/main/java/').matching { include "**/*.java" }.each { file ->
+    fileTree('TeamCode/src/main/java/').matching { include '**/*.java' }.each { file ->
 //        println('Root:'+ rootDir+'/TeamCode/src/main/java/')
 //        rootProject.getRootProject().rootDir
 //        println(file-(rootDir+'/TeamCode/src/main/java/'))
@@ -194,7 +240,7 @@ task newFile(type: HttpTask) {
                                 dialogTitle: 'Choose file',
                                 currentDirectory: new File(rootDir, '/TeamCode/src/main/java/org/firstinspires/ftc/teamcode'),
                                 dialogType: JFileChooser.SAVE_DIALOG,
-                                fileFilter: [getDescription: {-> "*.java"}, accept:{f -> f.toString() ==~ /.*?\.java/  || f.isDirectory() }] as FileFilter,
+                                fileFilter: [getDescription: {-> '*.java'}, accept:{f -> f.toString() ==~ /.*?\.java/  || f.isDirectory() }] as FileFilter,
                                 actionPerformed: { action ->
                                     println(action.actionCommand)
                                     if (action.actionCommand == 'ApproveSelection') {
