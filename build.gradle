@@ -18,7 +18,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0'
+        classpath 'com.android.tools.build:gradle:4.2.2'
         classpath 'de.undercouch:gradle-download-task:4.1.2'
         classpath 'gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1'
     }
@@ -120,7 +120,7 @@ task wipe(type: HttpTask) {
     post {
         request.uri.path = '/java/file/delete'
         request.contentType = 'application/x-www-form-urlencoded'
-        request.body = [delete: '['/src/']']
+        request.body = [delete: '["/src/"]']
         response.success { data, body ->
             println(body)
         }
