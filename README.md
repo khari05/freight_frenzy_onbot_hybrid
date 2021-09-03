@@ -1,7 +1,9 @@
 # Freight Frenzy Onbot Hybrid
 **Note: This repository was previously maintained by [@clwillingham](https://github.com/clwillingham). The original can be found [here](https://github.com/clwillingham/skystone_onbot_hybrid)**
 
-While this project does contain the official competition code, this repository is NOT the official FTC Skystone repository. This is a modified version of the Skystone FTC repository with additional gradle build tasks added to allow the java sourcecode of TeamCode to be uploaded onto the robot using OnBotJava.
+This project now connects by default to control hubs. If you wish to modify this, see line 66 of [build.gradle](./build.gradle)
+
+While this project does contain the official competition code, this repository is NOT the official FTC Freight Frenzy repository. This is a modified version of the Freight Frenzy FTC repository with additional gradle build tasks added to allow the java sourcecode of TeamCode to be uploaded onto the robot using OnBotJava.
 
 ![Run configurations](https://github.com/clwillingham/skystone_onbot_hybrid/raw/master/runconfigs.png)
 
